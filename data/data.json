@@ -1,0 +1,82 @@
+[
+  {
+    "title": "Apple iPhone 13 Pro",
+    "description": "The iPhone 13 Pro features a 6.1-inch Super Retina XDR display, A15 Bionic chip, and a triple-camera system with 12MP Ultra Wide, Wide, and Telephoto lenses.",
+    "image": "https://example.com/iphone13pro.jpg",
+    "rating": 4.8,
+    "category": "Electronics",
+    "price": 999.99
+  },
+  {
+    "title": "Samsung Galaxy S21 Ultra",
+    "description": "Samsung's Galaxy S21 Ultra boasts a 6.8-inch Dynamic AMOLED display, Snapdragon 888 processor, and a quad-camera setup with 108MP main sensor.",
+    "image": "https://example.com/galaxys21ultra.jpg",
+    "rating": 4.7,
+    "category": "Electronics",
+    "price": 1199.99
+  },
+  {
+    "title": "Sony WH-1000XM4 Headphones",
+    "description": "These over-ear headphones offer industry-leading noise cancellation, 30-hour battery life, and touch sensor controls.",
+    "image": "https://example.com/sonyheadphones.jpg",
+    "rating": 4.9,
+    "category": "Accessories",
+    "price": 349.99
+  },
+  {
+    "title": "Dell XPS 13 Laptop",
+    "description": "The Dell XPS 13 features a 13.4-inch InfinityEdge display, Intel Core i7 processor, and a sleek aluminum design.",
+    "image": "https://example.com/dellxps13.jpg",
+    "rating": 4.6,
+    "category": "Computers",
+    "price": 1299.99
+  },
+  {
+    "title": "Nike Air Zoom Pegasus 38",
+    "description": "A versatile running shoe with breathable mesh upper, responsive Zoom Air cushioning, and durable rubber outsole.",
+    "image": "https://example.com/nikeairzoom.jpg",
+    "rating": 4.5,
+    "category": "Footwear",
+    "price": 120.0
+  },
+  {
+    "title": "Apple MacBook Air M1",
+    "description": "The MacBook Air with M1 chip delivers exceptional performance, 13-inch Retina display, and up to 18 hours of battery life.",
+    "image": "https://example.com/macbookairm1.jpg",
+    "rating": 4.8,
+    "category": "Computers",
+    "price": 999.99
+  },
+  {
+    "title": "Sony PlayStation 5",
+    "description": "The PlayStation 5 offers ultra-fast loading, immersive gaming experiences, and a new DualSense wireless controller.",
+    "image": "https://example.com/ps5.jpg",
+    "rating": 4.7,
+    "category": "Gaming",
+    "price": 499.99
+  },
+  {
+    "title": "Bose QuietComfort 35 II",
+    "description": "These wireless headphones provide world-class noise cancellation, Alexa voice control, and 20-hour battery life.",
+    "image": "https://example.com/boseqc35ii.jpg",
+    "rating": 4.6,
+    "category": "Accessories",
+    "price": 299.99
+  },
+  {
+    "title": "Apple Watch Series 7",
+    "description": "The Apple Watch Series 7 features a larger always-on Retina display, faster charging, and advanced health monitoring.",
+    "image": "https://example.com/applewatch7.jpg",
+    "rating": 4.8,
+    "category": "Wearables",
+    "price": 399.99
+  },
+  {
+    "title": "Samsung Galaxy Tab S7",
+    "description": "This tablet offers an 11-inch LTPS TFT display, Snapdragon 865+ processor, and S Pen support for productivity.",
+    "image": "https://example.com/galaxytabs7.jpg",
+    "rating": 4.7,
+    "category": "Tablets",
+    "price": 649.99
+  }
+]
