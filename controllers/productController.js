@@ -1,7 +1,18 @@
 import Product from "../models/productModel.js";
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    //FILTERING
+    const queryObj = { ...req.query };
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    //ADVANCED FILTERING
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    let query = Product.find(JSON.parse(queryStr));
+
+    const products = await query;
+
     res.status(200).json({
       status: "success",
       result: products.length,
