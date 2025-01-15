@@ -1,4 +1,11 @@
 import Product from "../models/productModel.js";
+
+const topProducts = (req, res, next) => {
+  req.query.sort = "-rating price";
+  req.query.limit = 5;
+  req.query.fields = "title description category price rating";
+  next();
+};
 const getProducts = async (req, res) => {
   try {
     //FILTERING
@@ -120,4 +127,12 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
-export { getProducts, getProduct, createProduct, updateProduct, deleteProduct };
+
+export {
+  getProducts,
+  getProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  topProducts,
+};
