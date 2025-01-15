@@ -26,6 +26,7 @@ const productSchema = new mongoose.Schema([
     createdAt: {
       type: Date,
       default: Date.now(),
+      select: false,
     },
   },
 ]);

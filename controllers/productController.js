@@ -11,8 +11,34 @@ const getProducts = async (req, res) => {
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
     let query = Product.find(JSON.parse(queryStr));
 
-    const products = await query;
+    //SORTING
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort("-createdAt");
+    }
 
+    //FIELDS LIMITING
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      query = query.select("-__v");
+    }
+
+    //PAGINATION
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+    if (req.query.page) {
+      const numProducts = await Product.countDocuments();
+      if (skip >= numProducts) throw new Error("No result found!");
+    }
+
+    const products = await query;
+    //REPONSE
     res.status(200).json({
       status: "success",
       result: products.length,
@@ -23,7 +49,7 @@ const getProducts = async (req, res) => {
   } catch (err) {
     res.status(404).json({
       status: "fail",
-      data: err,
+      data: err.message,
     });
   }
 };
