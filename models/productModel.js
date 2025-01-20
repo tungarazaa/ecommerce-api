@@ -5,6 +5,7 @@ const productSchema = new mongoose.Schema([
     title: {
       type: String,
       required: [true, "The title cannot be empty!"],
+      unique: true,
       maxlength: [40, "The product title must be less than or equal to 40"],
       minlength: [10, "The product title should not be less than 10"],
     },

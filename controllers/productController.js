@@ -8,7 +8,7 @@ const topProducts = (req, res, next) => {
   req.query.fields = "title description category price rating";
   next();
 };
-const getProducts = catchAsync(async (req, res) => {
+const getProducts = catchAsync(async (req, res, next) => {
   //FILTERING
   // const queryObj = { ...req.query };
   // const excludedFields = ["page", "sort", "limit", "fields"];
@@ -63,7 +63,7 @@ const getProducts = catchAsync(async (req, res) => {
   });
 });
 
-const getProduct = catchAsync(async (req, res) => {
+const getProduct = catchAsync(async (req, res, next) => {
   const id = req.params.id;
   const product = await Product.findById(id);
   res.status(200).json({
@@ -84,7 +84,7 @@ const createProduct = catchAsync(async (req, res, next) => {
   });
 });
 
-const updateProduct = catchAsync(async (req, res) => {
+const updateProduct = catchAsync(async (req, res, next) => {
   const id = req.params.id;
   const product = await Product.findByIdAndUpdate(id, req.body, {
     runValidators: true,
@@ -97,7 +97,7 @@ const updateProduct = catchAsync(async (req, res) => {
   });
 });
 
-const deleteProduct = catchAsync(async (req, res) => {
+const deleteProduct = catchAsync(async (req, res, next) => {
   await Product.findByIdAndDelete(req.params.id);
   res.status(204).json({
     status: "success",
