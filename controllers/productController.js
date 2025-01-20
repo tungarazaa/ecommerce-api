@@ -1,4 +1,5 @@
 import Product from "../models/productModel.js";
+import CustomErrors from "../utils/customProductError.js";
 import ProductFeatures from "../utils/productFeatures.js";
 import catchAsync from "./catchAsync.js";
 
@@ -66,6 +67,10 @@ const getProducts = catchAsync(async (req, res, next) => {
 const getProduct = catchAsync(async (req, res, next) => {
   const id = req.params.id;
   const product = await Product.findById(id);
+
+  if (!product) {
+    return next(new CustomErrors("No product found with that ID", 404));
+  }
   res.status(200).json({
     status: "success",
     data: {
