@@ -30,6 +30,7 @@ const castErrorDB = (err) => {
 
 const validationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
+
   const message = `Invalid inputs: ${errors.join(". ")}`;
   return new CustomErrors(message, 400);
 };

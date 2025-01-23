@@ -2,11 +2,13 @@ import express from "express";
 import { router as productRouter } from "./routes/productRoutes.js";
 import CustomErrors from "./utils/customProductError.js";
 import errorHandlerController from "./controllers/errorHandlerController.js";
-export const app = express();
+import { router as userRouter } from "./routes/userRoutes.js";
+const app = express();
 
 //MIDDLEWARES
 app.use(express.json());
 app.use("/api/v1/products", productRouter);
+app.use("/api/v1/users", userRouter);
 
 //HANDLING UNMATCHED ROUTES
 app.all("*", (req, res, next) => {
@@ -19,3 +21,4 @@ app.all("*", (req, res, next) => {
 
 //ERROR HANDLING MIDDLEWARE
 app.use(errorHandlerController);
+export default app;
