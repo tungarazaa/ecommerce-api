@@ -7,13 +7,17 @@ import {
   deleteProduct,
   topProducts,
 } from "../controllers/productController.js";
-import { protect } from "../controllers/authController.js";
+import { protect, restrictTo } from "../controllers/authController.js";
 
 const router = express.Router();
 
 //TOP 5 BEST PRODUCTS
 router.route("/top-best-products").get(topProducts, getProducts);
 router.route("/").get(protect, getProducts).post(createProduct);
-router.route("/:id").get(getProduct).patch(updateProduct).delete(deleteProduct);
+router
+  .route("/:id")
+  .get(getProduct)
+  .patch(updateProduct)
+  .delete(protect, restrictTo("admin", "seller"), deleteProduct);
 
 export { router };

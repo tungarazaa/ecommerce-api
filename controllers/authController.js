@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import catchAsync from "./catchAsync.js";
 import CustomErrors from "../utils/customProductError.js";
+import sendEmail from "../utils/email.js";
 
 const jwtToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -17,6 +18,7 @@ const signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     passwordCreatedAt: req.body.passwordCreatedAt,
+    role: req.body.role,
   });
 
   const token = jwtToken(user._id);
@@ -69,7 +71,7 @@ const protect = catchAsync(async (req, res, next) => {
 
   if (!token)
     return next(
-      new CustomErrors("Token does not exist. Please login again", 40)
+      new CustomErrors("Token does not exist. Please login again", 401)
     );
 
   //Verifying token
@@ -80,18 +82,69 @@ const protect = catchAsync(async (req, res, next) => {
 
   if (!currentUser)
     return next(
-      new CustomErrors("The user with this token does not exist", 403)
+      new CustomErrors("The user with this token does not exist", 401)
     );
 
   if (currentUser.changedPassword(decoded.iat))
     return next(
       new CustomErrors(
         "User currently changed the password, please login again!",
-        403
+        401
       )
     );
-
+  req.user = currentUser;
   next();
 });
 
-export { signup, login, protect };
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role))
+      return next(
+        new CustomErrors("You are not allowed to perform this action", 403)
+      );
+    next();
+  };
+};
+
+const forgotPassword = catchAsync(async (req, res, next) => {
+  //Getting user using the email provided
+  const user = await User.findOne({ email: req.body.email });
+  if (!user)
+    return next(new CustomErrors("There is no user with that email", 404));
+
+  //create resetToken
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  //Send email
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/users/resetPassword/${resetToken}`;
+
+  const message = `You want to reset password? Click the link to reset. ${resetUrl}\n If you did not request this link, please ignore`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Reset password link. (Expires after 10 minutes)",
+      message,
+    });
+  } catch (err) {
+    (user.passwordResetToken = undefined),
+      (user.passwordResetExpires = undefined),
+      await user.save({ validateBeforeSave: false });
+    return next(
+      new CustomErrors(
+        "Could not send reset password link. Please try again after few minutes",
+        500
+      )
+    );
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Token sent to email",
+  });
+});
+
+export { signup, login, protect, restrictTo, forgotPassword };
