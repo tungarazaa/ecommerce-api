@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { promisify } from "util";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
@@ -76,6 +77,7 @@ const protect = catchAsync(async (req, res, next) => {
 
   //Verifying token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(decoded);
 
   //checking if the user still exists
   const currentUser = await User.findById(decoded.id);
@@ -129,6 +131,10 @@ const forgotPassword = catchAsync(async (req, res, next) => {
       subject: "Reset password link. (Expires after 10 minutes)",
       message,
     });
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email",
+    });
   } catch (err) {
     (user.passwordResetToken = undefined),
       (user.passwordResetExpires = undefined),
@@ -140,11 +146,34 @@ const forgotPassword = catchAsync(async (req, res, next) => {
       )
     );
   }
+});
 
+const resetPassword = catchAsync(async (req, res, next) => {
+  //Getting user based on the token
+  const resetToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: resetToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user)
+    return next(new CustomErrors("Invalid token or token expired!", 400));
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  const token = jwtToken(user._id);
   res.status(200).json({
     status: "success",
-    message: "Token sent to email",
+    token,
   });
 });
 
-export { signup, login, protect, restrictTo, forgotPassword };
+export { signup, login, protect, restrictTo, forgotPassword, resetPassword };

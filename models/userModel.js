@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
       message: "Password and the password confirm must be equal!",
     },
   },
-  passwordCreatedAt: Date,
+  passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
 });
@@ -51,6 +51,13 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now + 1000;
+  next();
+});
+
 userSchema.methods.comparePassword = async function (
   providedPassword,
   userPassword
@@ -59,8 +66,8 @@ userSchema.methods.comparePassword = async function (
 };
 
 userSchema.methods.changedPassword = function (tokenTime) {
-  if (this.passwordCreatedAt) {
-    const createdAt = parseInt(this.passwordCreatedAt.getTime() / 1000, 10);
+  if (this.passwordChangedAt) {
+    const createdAt = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
     return tokenTime < createdAt;
   }
   return false;
