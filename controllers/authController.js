@@ -6,6 +6,29 @@ import catchAsync from "./catchAsync.js";
 import CustomErrors from "../utils/customProductError.js";
 import sendEmail from "../utils/email.js";
 
+const createSendToken = (user, statusCode, res) => {
+  const token = jwtToken(user._id);
+
+  const cookiesOptions = {
+    expire: new Date(
+      Date.now() + process.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === "production") cookiesOptions.secure = true;
+
+  res.cookie("jwt", token, cookiesOptions);
+
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 const jwtToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
@@ -22,15 +45,7 @@ const signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
 
-  const token = jwtToken(user._id);
-
-  res.status(201).json({
-    status: "success",
-    token,
-    data: {
-      user,
-    },
-  });
+  createSendToken(user, 201, res);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -50,14 +65,7 @@ const login = catchAsync(async (req, res, next) => {
   if (!isPasswordCorrect)
     return next(new CustomErrors("Wrong email or password!", 401));
 
-  //creating token
-  const token = jwtToken(user.id);
-
-  //sending response
-  res.status(200).json({
-    status: "success",
-    token,
-  });
+  createSendToken(user, 200, res);
 });
 
 const protect = catchAsync(async (req, res, next) => {
@@ -77,7 +85,6 @@ const protect = catchAsync(async (req, res, next) => {
 
   //Verifying token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded);
 
   //checking if the user still exists
   const currentUser = await User.findById(decoded.id);
@@ -160,6 +167,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
     passwordResetExpires: { $gt: Date.now() },
   });
 
+  //If toke has expired or there is no user, throw an error
   if (!user)
     return next(new CustomErrors("Invalid token or token expired!", 400));
 
@@ -169,11 +177,35 @@ const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  const token = jwtToken(user._id);
-  res.status(200).json({
-    status: "success",
-    token,
-  });
+  //Update passwordChangedAt in the model using middleware
+
+  //Creating token na login user
+  createSendToken(user, 200, res);
 });
 
-export { signup, login, protect, restrictTo, forgotPassword, resetPassword };
+const updateMyPassword = catchAsync(async (req, res, next) => {
+  //Get user from the collection
+  const user = await User.findById(req.user._id).select("+password");
+
+  //Check if POSTed current password is correct
+  if (!(await user.comparePassword(req.body.passwordCurrent, user.password)))
+    return next(
+      new CustomErrors("You have insert a wrong curent pasword", 400)
+    );
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  createSendToken(user, 200, res);
+});
+
+export {
+  signup,
+  login,
+  protect,
+  restrictTo,
+  forgotPassword,
+  resetPassword,
+  updateMyPassword,
+};
